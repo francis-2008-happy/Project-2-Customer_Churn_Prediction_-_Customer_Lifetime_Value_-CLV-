@@ -1,4 +1,4 @@
-gender,SeniorCitizen,Partner,Dependents,tenure,PhoneService,MultipleLines,InternetService,OnlineSecurity,OnlineBackup,DeviceProtection,TechSupport,StreamingTV,StreamingMovies,Contract,PaperlessBilling,PaymentMethod,MonthlyCharges,TotalCharges,tenure_bucket,services_count,monthly_to_total_ratio,internet_no_techsupport,ExpectedTenure,CLV,Churn,CLV_quartile
+gender,SeniorCitizen,Partner,Dependents,tenure,PhoneService,MultipleLines,InternetService,OnlineSecurity,OnlineBackup,DeviceProtection,TechSupport,StreamingTV,StreamingMovies,Contract,PaperlessBilling,PaymentMethod,MonthlyCharges,TotalCharges,tenure_bucket,services_count,monthly_to_total_ratio,internet_no_techsupport,ExpectedTenure,CLV,Churn,CLV_quartile,
 0,0,0,0,66,1,0,0,2,2,2,0,0,0,2,1,0,61.15,4017.45,2,5,0.99542852895265,1,66,4035.9,0,Premium
 0,0,0,0,65,1,0,0,2,2,2,2,2,2,2,1,0,84.85,5459.2,2,8,0.9898372693894202,0,65,5515.25,0,Premium
 1,0,1,1,72,1,0,2,1,1,1,1,1,1,2,0,2,20.35,1354.4,2,1,0.9243789243789244,0,72,1465.2,0,Medium

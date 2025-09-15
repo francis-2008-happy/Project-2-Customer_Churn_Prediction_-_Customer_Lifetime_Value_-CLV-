@@ -335,26 +335,24 @@ with tab3:
 
         # --- Top-Risk Customers ---
         st.markdown("**Top 10 High-Risk Customers**")
-        top_risk = clv_data.sort_values(by="ChurnProbability", ascending=False).head(10)
+        top_risk = clv_data.sort_values(by="CLV", ascending=False).head(10)
         st.table(
-            top_risk[
-                ["CustomerID", "CLV", "ChurnProbability", "MonthlyCharges", "tenure"]
-            ]
+            top_risk[["CLV", "MonthlyCharges", "tenure"]]
         )
 
         # --- Aggregate Segment Metrics ---
         st.markdown("**Segment Summary Metrics**")
-        agg_metrics = segment_data.groupby("CLV_quartile")[
-            ["MonthlyCharges", "tenure", "ChurnProbability"]
+        agg_metrics = clv_data.groupby("CLV_quartile")[
+            ["MonthlyCharges", "tenure", "CLV"]
         ].mean()
         st.dataframe(agg_metrics)
 
         # --- What-If CLV Calculator ---
         st.markdown("**💡 What-If CLV Calculator**")
-        selected_customer = st.selectbox(
-            "Select Customer", segment_data["CustomerID"].values
+        selected_index = st.selectbox(
+            "Select Customer Row", clv_data.index
         )
-        cust_row = clv_data[clv_data["CustomerID"] == selected_customer].iloc[0]
+        cust_row = clv_data.iloc[selected_index]
         new_monthly = st.slider(
             "Adjust Monthly Charges", 0, 150, int(cust_row["MonthlyCharges"])
         )
@@ -362,7 +360,7 @@ with tab3:
             "Expected Tenure (months)", 1, 72, int(cust_row["tenure"])
         )
         new_clv = new_monthly * expected_tenure
-        st.write(f"Updated CLV for Customer {selected_customer}: **${new_clv:.2f}**")
+        st.write(f"Updated CLV for selected row {selected_index}: **${new_clv:.2f}**")
 
     else:
         st.warning("Run CLV analysis first to generate `clv_data.csv`")
