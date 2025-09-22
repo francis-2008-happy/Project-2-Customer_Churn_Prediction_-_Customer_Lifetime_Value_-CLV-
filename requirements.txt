@@ -1,8 +1,21 @@
-pandas~=2.2.0
-numpy~=1.26.0
-scikit-learn~=1.4.0
-xgboost~=2.0.0
-shap~=0.44.0
-matplotlib~=3.8.0
-streamlit~=1.36.0
-joblib~=1.4.0
+# put numpy early so pip installs a binary wheel first
+numpy==1.26.4
+pandas==2.2.3
+scikit-learn==1.4.2
+xgboost==2.0.2
+shap==0.44.0
+matplotlib==3.8.0
+plotly==5.20.0
+streamlit==1.36.0
+joblib==1.4.0
+pyyaml==6.0
+
+
+# pandas~=2.2.0
+# numpy~=1.26.0
+# scikit-learn~=1.4.0
+# xgboost~=2.0.0
+# shap~=0.44.0
+# matplotlib~=3.8.0
+# streamlit~=1.36.0
+# joblib~=1.4.0

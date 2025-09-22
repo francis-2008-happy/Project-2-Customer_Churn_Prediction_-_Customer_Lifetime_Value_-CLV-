@@ -29,7 +29,7 @@ explainer_rf = shap.TreeExplainer(rf)
 
 # ===== Streamlit App =====
 st.set_page_config(page_title="Customer Churn & CLV Dashboard", layout="centered")
-st.title("📊 Customer Churn & CLV Prediction Dashboard")
+st.title("Customer Churn & CLV Prediction Dashboard")
 
 # ===== Sidebar Inputs =====
 st.sidebar.header("New Customer Information")
@@ -166,7 +166,7 @@ with tab1:
 
         # --- Optional SHAP explanation ---
         # if st.checkbox("Show SHAP Explanation"):
-        #     shap_values = explainer_rf.shap_values(sample)
+        #     shap_values = explainer_rf.shap_values(sample) 
         #     import streamlit.components.v1 as components
         #     import shap
 
