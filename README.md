@@ -74,5 +74,12 @@ Each trained model is saved in /models and loaded by app.py.
 Successfully Deployed on Streamlit Cloud.
 
 
+
+Github Repo:
+https://github.com/francis-2008-happy/Project-2-Customer_Churn_Prediction_-_Customer_Lifetime_Value_-CLV-
+
+Youtube Video Link:
+https://www.youtube.com/watch?v=2zKOM1PBZ2o
 👤 Author
 Francis Happy – Data Science Enthusiast
+
