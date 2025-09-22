@@ -1,6 +1,6 @@
 # put numpy early so pip installs a binary wheel first
-numpy==1.26.4
-pandas==2.2.3
+numpy
+pandas
 scikit-learn==1.4.2
 plotly==5.22.0
 streamlit==1.37.0
