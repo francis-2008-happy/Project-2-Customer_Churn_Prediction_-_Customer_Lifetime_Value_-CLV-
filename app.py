@@ -322,23 +322,34 @@ with tab3:
 
         # --- Churn Rate by CLV Quartiles ---
         st.markdown("**Churn Rate by CLV Quartile**")
-        churn_by_quartile = clv_data.groupby("CLV_quartile")["Churn"].apply(
-            lambda x: (x == "Yes").mean()
-        )
+        # Since Churn is numeric (0/1), mean gives churn rate
+        churn_by_quartile = clv_data.groupby("CLV_quartile")["Churn"].mean() * 100
         fig_churn = px.bar(
             x=churn_by_quartile.index,
             y=churn_by_quartile.values,
-            labels={"x": "CLV Quartile", "y": "Churn Rate"},
+            labels={"x": "CLV Quartile", "y": "Churn Rate (%)"},
             title="Churn Rate by CLV Quartile",
         )
         st.plotly_chart(fig_churn)
 
+        # --- Takeaway Summary ---
+        max_segment = churn_by_quartile.idxmax()
+        max_rate = churn_by_quartile.max().round(2)
+        min_segment = churn_by_quartile.idxmin()
+        min_rate = churn_by_quartile.min().round(2)
+
+        st.markdown(
+            f"**Takeaway:** Customers in the **{max_segment}** CLV quartile "
+            f"have the highest churn rate at **{max_rate}%**, "
+            f"while **{min_segment}** customers show the lowest churn rate at **{min_rate}%**. "
+            f"This suggests focusing retention strategies on **{max_segment}** customers "
+            f"to improve overall customer lifetime value."
+        )
+
         # --- Top-Risk Customers ---
         st.markdown("**Top 10 High-Risk Customers**")
         top_risk = clv_data.sort_values(by="CLV", ascending=False).head(10)
-        st.table(
-            top_risk[["CLV", "MonthlyCharges", "tenure"]]
-        )
+        st.table(top_risk[["CLV", "MonthlyCharges", "tenure"]])
 
         # --- Aggregate Segment Metrics ---
         st.markdown("**Segment Summary Metrics**")
@@ -364,3 +375,108 @@ with tab3:
 
     else:
         st.warning("Run CLV analysis first to generate `clv_data.csv`")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# with tab3:
+#     st.subheader(" Customer Lifetime Value (CLV) Overview")
+
+#     clv_data_path = os.path.join(DATA_DIR, "clv_data.csv")
+#     if os.path.exists(clv_data_path):
+#         clv_data = pd.read_csv(clv_data_path)
+
+#         # --- CLV Quartiles ---
+#         clv_data["CLV_quartile"] = pd.qcut(
+#             clv_data["CLV"], 4, labels=["Low", "Medium", "High", "Premium"]
+#         )
+
+#         # --- Segment Selector ---
+#         segment = st.selectbox(
+#             "Select CLV Segment", ["All"] + list(clv_data["CLV_quartile"].unique())
+#         )
+#         if segment != "All":
+#             segment_data = clv_data[clv_data["CLV_quartile"] == segment]
+#         else:
+#             segment_data = clv_data
+
+#         st.markdown(f"**Number of customers in segment:** {segment_data.shape[0]}")
+
+#         # --- CLV Distribution ---
+#         st.markdown("**CLV Distribution**")
+#         import plotly.express as px
+
+#         fig_clv = px.histogram(
+#             segment_data,
+#             x="CLV",
+#             nbins=20,
+#             color="CLV_quartile",
+#             title="CLV Distribution",
+#         )
+#         st.plotly_chart(fig_clv)
+
+#         # --- Churn Rate by CLV Quartiles ---
+#         st.markdown("**Churn Rate by CLV Quartile**")
+#         churn_by_quartile = clv_data.groupby("CLV_quartile")["Churn"].apply(
+#             lambda x: (x == "Yes").mean()
+#         )
+#         fig_churn = px.bar(
+#             x=churn_by_quartile.index,
+#             y=churn_by_quartile.values,
+#             labels={"x": "CLV Quartile", "y": "Churn Rate"},
+#             title="Churn Rate by CLV Quartile",
+#         )
+#         st.plotly_chart(fig_churn)
+
+#         # --- Top-Risk Customers ---
+#         st.markdown("**Top 10 High-Risk Customers**")
+#         top_risk = clv_data.sort_values(by="CLV", ascending=False).head(10)
+#         st.table(
+#             top_risk[["CLV", "MonthlyCharges", "tenure"]]
+#         )
+
+#         # --- Aggregate Segment Metrics ---
+#         st.markdown("**Segment Summary Metrics**")
+#         agg_metrics = clv_data.groupby("CLV_quartile")[
+#             ["MonthlyCharges", "tenure", "CLV"]
+#         ].mean()
+#         st.dataframe(agg_metrics)
+
+#         # --- What-If CLV Calculator ---
+#         st.markdown("**💡 What-If CLV Calculator**")
+#         selected_index = st.selectbox(
+#             "Select Customer Row", clv_data.index
+#         )
+#         cust_row = clv_data.iloc[selected_index]
+#         new_monthly = st.slider(
+#             "Adjust Monthly Charges", 0, 150, int(cust_row["MonthlyCharges"])
+#         )
+#         expected_tenure = st.slider(
+#             "Expected Tenure (months)", 1, 72, int(cust_row["tenure"])
+#         )
+#         new_clv = new_monthly * expected_tenure
+#         st.write(f"Updated CLV for selected row {selected_index}: **${new_clv:.2f}**")
+
+#     else:
+#         st.warning("Run CLV analysis first to generate `clv_data.csv`")
