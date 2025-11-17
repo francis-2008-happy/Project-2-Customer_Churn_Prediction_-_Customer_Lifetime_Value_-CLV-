@@ -257,6 +257,49 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+# ---- Robust overrides for Streamlit Cloud (targets data-testid selectors and forces priority) ----
+st.markdown(
+    """
+    <style>
+    /* Strong overrides to ensure styles apply on Streamlit Cloud */
+    div[data-testid="stAppViewContainer"] {
+        background: linear-gradient(135deg, #f0f4f8 0%, #e3f2fd 100%) !important;
+    }
+    div[data-testid="stAppViewContainer"] .main > .block-container {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
+        padding: 20px !important;
+        border-radius: 12px !important;
+    }
+    div[data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
+        border-right: 2px solid #e2e8f0 !important;
+    }
+    /* Tab and header overrides */
+    [data-testid="stTabs"] div[role="tab"] {
+        background: #f1f5f9 !important;
+    }
+    [data-testid="stTabs"] div[role="tab"][aria-selected="true"] {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%) !important;
+        color: white !important;
+    }
+    /* Ensure typography loads and applies */
+    @font-face {
+        font-family: 'Poppins';
+        src: local('Poppins'), local('Poppins-Regular');
+    }
+    body, div, span, p {
+        font-family: 'Poppins', sans-serif !important;
+    }
+    /* Force metric card and button priority */
+    .metric-card, .stButton > button {
+        box-shadow: 0 8px 24px rgba(15,23,42,0.08) !important;
+        border-radius: 12px !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 # App header
 st.markdown(
     """
