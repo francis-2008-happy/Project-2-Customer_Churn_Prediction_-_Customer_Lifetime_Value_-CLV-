@@ -28,8 +28,276 @@ encoders = joblib.load(os.path.join(DATA_DIR, "encoders.pkl"))
 explainer_rf = shap.TreeExplainer(rf)
 
 # ===== Streamlit App =====
-st.set_page_config(page_title="Customer Churn & CLV Dashboard", layout="centered")
-st.title("Customer Churn & CLV Prediction Dashboard")
+st.set_page_config(page_title="Customer Churn & CLV Dashboard", layout="wide")
+
+# ---- Styling: inject custom CSS for a modern, polished dashboard ----
+st.markdown(
+    """
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    
+    /* Root color variables */
+    :root {
+        --primary: #6366f1;
+        --primary-dark: #4f46e5;
+        --accent: #ec4899;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --bg-light: #f8fafc;
+        --bg-lighter: #f1f5f9;
+        --text-dark: #0f172a;
+        --text-muted: #64748b;
+        --border-light: #e2e8f0;
+    }
+    
+    /* Global styles */
+    html, body, [class*="css"] {
+        font-family: 'Poppins', sans-serif;
+        background: linear-gradient(135deg, #f0f4f8 0%, #e3f2fd 100%);
+        color: var(--text-dark);
+    }
+    
+    /* Main container background */
+    .main {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        padding: 20px;
+    }
+    
+    /* Sidebar styling */
+    .stSidebar {
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        border-right: 2px solid var(--border-light);
+    }
+    
+    /* Header section */
+    .app-header {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        padding: 32px 24px;
+        border-radius: 16px;
+        margin-bottom: 24px;
+        box-shadow: 0 10px 30px rgba(99, 102, 241, 0.15);
+        color: white;
+    }
+    
+    .brand-title {
+        font-size: 32px;
+        font-weight: 700;
+        margin: 0;
+        color: #ffffff;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .brand-sub {
+        color: rgba(255,255,255,0.9);
+        margin: 8px 0 0 0;
+        font-size: 14px;
+        font-weight: 400;
+    }
+    
+    /* Metric cards - Enhanced styling */
+    .metric-card {
+        background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+        padding: 24px;
+        border-radius: 14px;
+        border: 2px solid var(--border-light);
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+        transition: all 0.3s ease;
+    }
+    
+    .metric-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 32px rgba(99, 102, 241, 0.12);
+        border-color: #6366f1;
+    }
+    
+    .metric-value {
+        font-size: 28px;
+        font-weight: 700;
+        color: #6366f1;
+        margin-bottom: 8px;
+    }
+    
+    .metric-label {
+        font-size: 13px;
+        color: var(--text-muted);
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    /* Risk level badges */
+    .risk-low {
+        color: #059669;
+        font-weight: 700;
+        background: rgba(16, 185, 129, 0.1);
+        padding: 8px 12px;
+        border-radius: 8px;
+        display: inline-block;
+    }
+    
+    .risk-med {
+        color: #d97706;
+        font-weight: 700;
+        background: rgba(217, 119, 6, 0.1);
+        padding: 8px 12px;
+        border-radius: 8px;
+        display: inline-block;
+    }
+    
+    .risk-high {
+        color: #dc2626;
+        font-weight: 700;
+        background: rgba(220, 38, 38, 0.1);
+        padding: 8px 12px;
+        border-radius: 8px;
+        display: inline-block;
+    }
+    
+    /* Tab styling */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+        border-bottom: 2px solid var(--border-light);
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        padding: 12px 20px;
+        border-radius: 8px 8px 0 0;
+        background: var(--bg-lighter);
+        color: var(--text-muted);
+        font-weight: 600;
+    }
+    
+    .stTabs [aria-selected="true"] {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        color: white;
+        box-shadow: 0 -2px 8px rgba(99, 102, 241, 0.2);
+    }
+    
+    /* Section headers */
+    .section-header {
+        font-size: 20px;
+        font-weight: 700;
+        color: #6366f1;
+        margin: 24px 0 16px 0;
+        padding-bottom: 12px;
+        border-bottom: 3px solid #6366f1;
+    }
+    
+    /* Input containers */
+    .stSelectbox, .stNumberInput, .stSlider {
+        background: white;
+        border-radius: 8px;
+    }
+    
+    /* Buttons */
+    .stButton > button {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+    }
+    
+    .stButton > button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(99, 102, 241, 0.35);
+    }
+    
+    /* Data tables */
+    .stDataFrame {
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid var(--border-light);
+    }
+    
+    /* Charts container */
+    .stPlotlyChart > div {
+        width: 100% !important;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    
+    /* Expander styling */
+    .streamlit-expanderHeader {
+        background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+        border-radius: 8px;
+        border: 1px solid var(--border-light);
+    }
+    
+    /* Sidebar header */
+    .stSidebar .stSubheader {
+        color: #6366f1;
+        font-weight: 700;
+        border-bottom: 2px solid #6366f1;
+        padding-bottom: 8px;
+    }
+    
+    /* Markdown text emphasis */
+    strong {
+        color: #6366f1;
+    }
+    
+    /* Warning/Info boxes */
+    .stWarning, .stInfo {
+        border-radius: 8px;
+        border-left: 4px solid var(--warning);
+    }
+    
+    /* Success styling */
+    .stSuccess {
+        border-radius: 8px;
+        border-left: 4px solid var(--success);
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+# App header
+st.markdown(
+    """
+    <div class="app-header">
+      <div>
+        <div class="brand-title">Customer Churn & CLV Dashboard</div>
+        <div class="brand-sub">Advanced ML-powered insights for predicting customer churn and maximizing lifetime value</div>
+      </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
+def _render_result_cards(prob_percent: float, risk: str, clv: float):
+    """Render three metric cards for probability, risk and CLV."""
+    col1, col2, col3 = st.columns([1, 1, 1])
+    # Probability Card
+    with col1:
+        st.markdown(
+            f"<div class='metric-card'><div class='metric-value'>{prob_percent:.2f}%</div><div class='metric-label'>Churn Probability</div></div>",
+            unsafe_allow_html=True,
+        )
+    # Risk Card
+    risk_class = 'risk-low'
+    if risk == 'Medium Risk':
+        risk_class = 'risk-med'
+    elif risk == 'High Risk':
+        risk_class = 'risk-high'
+
+    with col2:
+        st.markdown(
+            f"<div class='metric-card'><div class='metric-value {risk_class}'>{risk}</div><div class='metric-label'>Risk Level</div></div>",
+            unsafe_allow_html=True,
+        )
+    # CLV Card
+    with col3:
+        st.markdown(
+            f"<div class='metric-card'><div class='metric-value'>${clv:,.2f}</div><div class='metric-label'>Estimated CLV</div></div>",
+            unsafe_allow_html=True,
+        )
+
 
 # ===== Sidebar Inputs =====
 st.sidebar.header("New Customer Information")
@@ -56,11 +324,11 @@ payment_method = st.sidebar.selectbox(
 monthly_charges = st.sidebar.number_input("Monthly Charges ($)", min_value=0.0, max_value=150.0, value=70.0)
 
 # ===== Tabs =====
-tab1, tab2, tab3 = st.tabs(["Churn Prediction", " Model Performance", "CLV Overview"])
+tab1, tab2, tab3 = st.tabs(["🎯 Churn Prediction", "📈 Model Performance", "💰 CLV Overview"])
 
 # ===================== TAB 1: Predict Churn =====================
 with tab1:
-    st.subheader("Predict Churn for a New Customer")
+    st.markdown("<div class='section-header'>🔮 Predict Churn for a New Customer</div>", unsafe_allow_html=True)
     
     if st.button("Predict Churn"):
         # --- Encode features ---
@@ -155,13 +423,27 @@ with tab1:
 
         prob_percent = proba * 100
 
-        # --- Display results ---
-        st.subheader("Churn Prediction Result")
-        st.markdown(f"**Risk Level:** {risk}")
-        st.markdown(f"**Churn Probability:** {prob_percent:.2f}%")
-        st.markdown(f"**Interpretation:** {interpretation}")
+        # --- Display results (styled) ---
+        st.markdown("<div class='section-header'>✨ Churn Prediction Result</div>", unsafe_allow_html=True)
+        _render_result_cards(prob_percent, risk, clv)
+        
+        # Styled interpretation
         st.markdown(
-            f"**Estimated CLV:** ${clv:,.2f} (based on Monthly Charges * {expected_tenure} months expected tenure)"
+            f"""
+            <div style='background: linear-gradient(135deg, #f0f4f8 0%, #e3f2fd 100%);
+                        padding: 16px;
+                        border-radius: 10px;
+                        border-left: 4px solid #6366f1;
+                        margin-top: 16px;'>
+                <strong style='font-size: 16px;'>📋 Interpretation:</strong><br>
+                <span style='font-size: 14px; color: #475569;'>{interpretation}</span>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        st.markdown(
+            f"<div style='margin-top:16px;font-size:13px;color:#64748b;background: #f8fafc; padding: 12px; border-radius: 8px;'>💵 Estimated CLV: <strong style='color: #6366f1;'>${clv:,.2f}</strong> (Monthly Charges × {expected_tenure} months)</div>",
+            unsafe_allow_html=True,
         )
 
         # --- Optional SHAP explanation ---
@@ -178,7 +460,7 @@ with tab1:
 # ===================== TAB 2: Model Performance =====================
 
 with tab2:
-    st.subheader(" Model Performance Dashboard")
+    st.markdown("<div class='section-header'>📊 Model Performance Dashboard</div>", unsafe_allow_html=True)
 
     # Load or compute metrics
     metrics_path = os.path.join(DATA_DIR, "performance_metrics.csv")
@@ -215,12 +497,14 @@ with tab2:
         metrics_df.to_csv(metrics_path)
 
     # --- Model Selector ---
+    st.markdown("<h3 style='color: #6366f1; margin-top: 24px;'>🤖 Model Selection</h3>", unsafe_allow_html=True)
     selected_model = st.selectbox("Select Model to View Metrics", metrics_df.index)
-    st.write(f"**Metrics for {selected_model}**")
-    st.dataframe(metrics_df.loc[selected_model])
+    
+    st.markdown(f"<div style='background: #f8fafc; padding: 16px; border-radius: 10px; border-left: 4px solid #6366f1;'><strong>Metrics for {selected_model}</strong></div>", unsafe_allow_html=True)
+    st.dataframe(metrics_df.loc[selected_model], use_container_width=True)
 
     # --- Feature Importance ---
-    st.markdown("**Feature Importance / Contribution**")
+    st.markdown("<h3 style='color: #6366f1; margin-top: 24px;'>⭐ Feature Importance / Contribution</h3>", unsafe_allow_html=True)
     if selected_model == "RandomForest":
         importances = rf.feature_importances_
     elif selected_model == "XGBoost":
@@ -232,10 +516,10 @@ with tab2:
     feat_importance_df = pd.DataFrame(
         {"Feature": X_train.columns, "Importance": importances}
     ).sort_values(by="Importance", ascending=False)
-    st.dataframe(feat_importance_df)
+    st.dataframe(feat_importance_df, use_container_width=True)
 
     # --- ROC Curve ---
-    st.markdown("**ROC Curve**")
+    st.markdown("<h3 style='color: #6366f1; margin-top: 24px;'>📉 ROC Curve</h3>", unsafe_allow_html=True)
     from sklearn.metrics import roc_curve, auc
     import plotly.graph_objects as go
 
@@ -262,13 +546,15 @@ with tab2:
         yaxis_title="True Positive Rate",
         width=700,
         height=500,
+        template="plotly_white",
+        hovermode="closest",
     )
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 
     # --- Precision-Recall Curve (Optional) ---
     from sklearn.metrics import precision_recall_curve
 
-    st.markdown("**Precision-Recall Curve**")
+    st.markdown("<h3 style='color: #6366f1; margin-top: 24px;'>📊 Precision-Recall Curve</h3>", unsafe_allow_html=True)
     precision, recall, _ = precision_recall_curve(y_test, y_prob)
     pr_fig = go.Figure()
     pr_fig.add_trace(go.Scatter(x=recall, y=precision, mode="lines"))
@@ -278,14 +564,16 @@ with tab2:
         yaxis_title="Precision",
         width=700,
         height=500,
+        template="plotly_white",
+        hovermode="closest",
     )
-    st.plotly_chart(pr_fig)
+    st.plotly_chart(pr_fig, use_container_width=True)
 
 
 # ===================== TAB 3: CLV Overview =====================
 
 with tab3:
-    st.subheader(" Customer Lifetime Value (CLV) Overview")
+    st.markdown("<div class='section-header'>💰 Customer Lifetime Value (CLV) Overview</div>", unsafe_allow_html=True)
 
     clv_data_path = os.path.join(DATA_DIR, "clv_data.csv")
     if os.path.exists(clv_data_path):
@@ -297,6 +585,7 @@ with tab3:
         )
 
         # --- Segment Selector ---
+        st.markdown("<h3 style='color: #6366f1; margin-top: 24px;'>📍 Segment Selection</h3>", unsafe_allow_html=True)
         segment = st.selectbox(
             "Select CLV Segment", ["All"] + list(clv_data["CLV_quartile"].unique())
         )
@@ -305,10 +594,10 @@ with tab3:
         else:
             segment_data = clv_data
 
-        st.markdown(f"**Number of customers in segment:** {segment_data.shape[0]}")
+        st.markdown(f"<div style='background: linear-gradient(135deg, #f0f4f8 0%, #e3f2fd 100%); padding: 12px; border-radius: 8px; border-left: 4px solid #6366f1;'>👥 <strong>Customers in segment:</strong> {segment_data.shape[0]}</div>", unsafe_allow_html=True)
 
         # --- CLV Distribution ---
-        st.markdown("**CLV Distribution**")
+        st.markdown("<h3 style='color: #6366f1; margin-top: 24px;'>📊 CLV Distribution</h3>", unsafe_allow_html=True)
         import plotly.express as px
 
         fig_clv = px.histogram(
@@ -316,12 +605,14 @@ with tab3:
             x="CLV",
             nbins=20,
             color="CLV_quartile",
-            title="CLV Distribution",
+            title="CLV Distribution by Segment",
+            color_discrete_sequence=["#10b981", "#f59e0b", "#f97316", "#6366f1"],
         )
-        st.plotly_chart(fig_clv)
+        fig_clv.update_layout(template="plotly_white", hovermode="closest")
+        st.plotly_chart(fig_clv, use_container_width=True)
 
         # --- Churn Rate by CLV Quartiles ---
-        st.markdown("**Churn Rate by CLV Quartile**")
+        st.markdown("<h3 style='color: #6366f1; margin-top: 24px;'>📉 Churn Rate by CLV Quartile</h3>", unsafe_allow_html=True)
         # Since Churn is numeric (0/1), mean gives churn rate
         churn_by_quartile = clv_data.groupby("CLV_quartile")["Churn"].mean() * 100
         fig_churn = px.bar(
@@ -329,8 +620,11 @@ with tab3:
             y=churn_by_quartile.values,
             labels={"x": "CLV Quartile", "y": "Churn Rate (%)"},
             title="Churn Rate by CLV Quartile",
+            color=churn_by_quartile.values,
+            color_continuous_scale=["#10b981", "#f59e0b", "#f97316", "#ef4444"],
         )
-        st.plotly_chart(fig_churn)
+        fig_churn.update_layout(template="plotly_white", hovermode="closest", showlegend=False)
+        st.plotly_chart(fig_churn, use_container_width=True)
 
         # --- Takeaway Summary ---
         max_segment = churn_by_quartile.idxmax()
@@ -339,27 +633,37 @@ with tab3:
         min_rate = churn_by_quartile.min().round(2)
 
         st.markdown(
-            f"**Takeaway:** Customers in the **{max_segment}** CLV quartile "
-            f"have the highest churn rate at **{max_rate}%**, "
-            f"while **{min_segment}** customers show the lowest churn rate at **{min_rate}%**. "
-            f"This suggests focusing retention strategies on **{max_segment}** customers "
-            f"to improve overall customer lifetime value."
+            f"""
+            <div style='background: linear-gradient(135deg, #fff7ed 0%, #fef3c7 100%);
+                        padding: 16px;
+                        border-radius: 10px;
+                        border-left: 4px solid #f59e0b;
+                        margin-top: 16px;'>
+                <strong style='font-size: 16px; color: #b45309;'>💡 Key Insight:</strong><br>
+                <span style='font-size: 14px; color: #92400e;'>
+                    Customers in the <strong>{max_segment}</strong> CLV quartile have the highest churn rate at <strong>{max_rate}%</strong>, 
+                    while <strong>{min_segment}</strong> customers show the lowest churn rate at <strong>{min_rate}%</strong>. 
+                    Focus retention strategies on <strong>{max_segment}</strong> customers to improve overall CLV.
+                </span>
+            </div>
+            """,
+            unsafe_allow_html=True,
         )
 
         # --- Top-Risk Customers ---
-        st.markdown("**Top 10 High-Risk Customers**")
+        st.markdown("<h3 style='color: #6366f1; margin-top: 24px;'>⚠️ Top 10 High-CLV Customers</h3>", unsafe_allow_html=True)
         top_risk = clv_data.sort_values(by="CLV", ascending=False).head(10)
-        st.table(top_risk[["CLV", "MonthlyCharges", "tenure"]])
+        st.dataframe(top_risk[["CLV", "MonthlyCharges", "tenure"]], use_container_width=True)
 
         # --- Aggregate Segment Metrics ---
-        st.markdown("**Segment Summary Metrics**")
+        st.markdown("<h3 style='color: #6366f1; margin-top: 24px;'>📋 Segment Summary Metrics</h3>", unsafe_allow_html=True)
         agg_metrics = clv_data.groupby("CLV_quartile")[
             ["MonthlyCharges", "tenure", "CLV"]
         ].mean()
-        st.dataframe(agg_metrics)
+        st.dataframe(agg_metrics, use_container_width=True)
 
         # --- What-If CLV Calculator ---
-        st.markdown("**💡 What-If CLV Calculator**")
+        st.markdown("<h3 style='color: #6366f1; margin-top: 24px;'>🔮 What-If CLV Calculator</h3>", unsafe_allow_html=True)
         selected_index = st.selectbox(
             "Select Customer Row", clv_data.index
         )
@@ -371,7 +675,20 @@ with tab3:
             "Expected Tenure (months)", 1, 72, int(cust_row["tenure"])
         )
         new_clv = new_monthly * expected_tenure
-        st.write(f"Updated CLV for selected row {selected_index}: **${new_clv:.2f}**")
+        st.markdown(
+            f"""
+            <div style='background: linear-gradient(135deg, #f0f4f8 0%, #e3f2fd 100%);
+                        padding: 16px;
+                        border-radius: 10px;
+                        border-left: 4px solid #6366f1;
+                        margin-top: 16px;'>
+                <strong style='font-size: 16px;'>💰 Updated CLV:</strong><br>
+                <span style='font-size: 20px; color: #6366f1; font-weight: 700;'>${new_clv:,.2f}</span><br>
+                <span style='font-size: 12px; color: #64748b;'>for selected customer (Row {selected_index})</span>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
     else:
         st.warning("Run CLV analysis first to generate `clv_data.csv`")
