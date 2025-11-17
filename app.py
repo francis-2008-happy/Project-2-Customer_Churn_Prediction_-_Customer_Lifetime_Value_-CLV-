@@ -529,7 +529,7 @@ def _render_result_cards(prob_percent: float, risk: str, clv: float):
 
 
 # ===== Sidebar Inputs =====
-st.sidebar.markdown("<div class='stSubheader'>📋 Customer Information</div>", unsafe_allow_html=True)
+st.sidebar.markdown("<div class='stSubheader'>📋 CUSTOMER INFORMATION </div>", unsafe_allow_html=True)
 st.sidebar.markdown("<div style='font-size: 12px; color: #64748b; margin-bottom: 16px;'>Fill in the details below to predict churn and estimate CLV</div>", unsafe_allow_html=True)
 st.sidebar.markdown("<div style='margin-top: 12px; padding-top: 12px; border-top: 2px solid #e2e8f0;'></div>", unsafe_allow_html=True)
 st.sidebar.markdown("<span style='font-size: 11px; color: #8b5cf6; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;'>👤 Personal Details</span>", unsafe_allow_html=True)
