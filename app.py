@@ -492,7 +492,7 @@ st.markdown(
     <div class="app-header">
       <div>
         <div class="brand-title">Customer Churn & CLV Dashboard</div>
-        <div class="brand-sub">Advanced ML-powered insights for predicting customer churn and maximizing lifetime value</div>
+        <div class="brand-sub">Advanced ML-powered insights for predicting customer churn and maximizing lifetime value  -  By Francis Happy </div>
       </div>
     </div>
     """,
