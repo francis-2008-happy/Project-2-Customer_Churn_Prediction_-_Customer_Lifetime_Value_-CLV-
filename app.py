@@ -729,54 +729,57 @@ with tab1:
             unsafe_allow_html=True,
         )
 
-        # --- SHAP explanation ---
+        # --- SHAP explanation (Expander) ---
         st.markdown("<div class='section-header' style='margin-top: 24px;'>Feature Impact Analysis (SHAP)</div>", unsafe_allow_html=True)
-        
-        if st.checkbox("Show detailed SHAP explanation (Feature importance for this prediction)"):
-            try:
-                # Compute SHAP values for this sample
-                shap_values = explainer_rf.shap_values(st.session_state.sample)
-                
-                # Create feature importance visualization for this prediction
-                st.markdown("**How each feature contributed to this prediction:**")
-                
-                # For binary classification, SHAP returns values for both classes
-                # We want class 1 (churn)
-                if isinstance(shap_values, list):
-                    shap_vals_churn = shap_values[1]
-                else:
-                    shap_vals_churn = shap_values[:, :, 1]
-                
-                # Create a summary showing top contributing features
-                feature_impact = pd.DataFrame({
-                    'Feature': X_train.columns,
-                    'Impact': shap_vals_churn[0]
-                }).sort_values('Impact', key=abs, ascending=False).head(10)
-                
-                # Visualize using matplotlib
-                fig, ax = plt.subplots(figsize=(10, 6))
-                colors = ['#ef4444' if x > 0 else '#10b981' for x in feature_impact['Impact']]
-                ax.barh(feature_impact['Feature'], feature_impact['Impact'], color=colors)
-                ax.set_xlabel('SHAP Value (Impact on Churn Prediction)', fontsize=12, fontweight='bold')
-                ax.set_title('Top 10 Features Influencing This Prediction', fontsize=14, fontweight='bold')
-                ax.axvline(x=0, color='black', linestyle='-', linewidth=0.8)
-                plt.tight_layout()
-                st.pyplot(fig)
-                
-                st.markdown("""
-                <div style='background: #f0fdf4; padding: 12px; border-radius: 8px; border-left: 4px solid #10b981; margin-top: 12px; font-size: 12px;'>
-                <strong>📊 How to read this chart:</strong><br>
-                • <strong style='color: #dc2626;'>Red bars</strong> = Features pushing the model toward predicting CHURN<br>
-                • <strong style='color: #16a34a;'>Green bars</strong> = Features pushing the model toward predicting NO CHURN<br>
-                • Longer bars = stronger influence on this prediction
-                </div>
-                """, unsafe_allow_html=True)
-                
-            except Exception as e:
-                st.warning(f"Could not generate SHAP visualization: {str(e)}")
-                st.info("SHAP explanation may require additional dependencies or model compatibility.")
-        else:
-            st.info("Click the checkbox above to see which features had the strongest impact on this churn prediction.")
+        with st.expander("🔍 Show SHAP feature impact for the last prediction", expanded=False):
+            if not st.session_state.get("prediction_made", False):
+                st.info("Make a prediction first to enable SHAP explanations.")
+            else:
+                try:
+                    # Compute SHAP values for this sample
+                    shap_values = explainer_rf.shap_values(st.session_state.sample)
+
+                    st.markdown("**How each feature contributed to this prediction:**")
+
+                    # For binary classification, SHAP returns values for both classes
+                    # We want class 1 (churn)
+                    if isinstance(shap_values, list):
+                        shap_vals_churn = shap_values[1]
+                    else:
+                        # shap may return a 3D array for certain explainers
+                        try:
+                            shap_vals_churn = shap_values[:, :, 1]
+                        except Exception:
+                            shap_vals_churn = shap_values
+
+                    # Create a summary showing top contributing features
+                    feature_impact = pd.DataFrame({
+                        'Feature': X_train.columns,
+                        'Impact': shap_vals_churn[0]
+                    }).assign(AbsImpact=lambda df: df['Impact'].abs()).sort_values('AbsImpact', ascending=False).head(10)
+
+                    # Visualize using matplotlib
+                    fig, ax = plt.subplots(figsize=(10, 6))
+                    colors = ['#ef4444' if x > 0 else '#10b981' for x in feature_impact['Impact']]
+                    ax.barh(feature_impact['Feature'], feature_impact['Impact'], color=colors)
+                    ax.set_xlabel('SHAP Value (Impact on Churn Prediction)', fontsize=12, fontweight='bold')
+                    ax.set_title('Top 10 Features Influencing This Prediction', fontsize=14, fontweight='bold')
+                    ax.axvline(x=0, color='black', linestyle='-', linewidth=0.8)
+                    plt.tight_layout()
+                    st.pyplot(fig)
+
+                    st.markdown("""
+                    <div style='background: #f0fdf4; padding: 12px; border-radius: 8px; border-left: 4px solid #10b981; margin-top: 12px; font-size: 12px;'>
+                    <strong>📊 How to read this chart:</strong><br>
+                    • <strong style='color: #dc2626;'>Red bars</strong> = Features pushing the model toward predicting CHURN<br>
+                    • <strong style='color: #16a34a;'>Green bars</strong> = Features pushing the model toward predicting NO CHURN<br>
+                    • Longer bars = stronger influence on this prediction
+                    </div>
+                    """, unsafe_allow_html=True)
+
+                except Exception as e:
+                    st.error("Could not generate SHAP visualization — see details below.")
+                    st.exception(e)
 
 # ===================== TAB 2: Model Performance =====================
 
