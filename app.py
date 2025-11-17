@@ -574,6 +574,10 @@ with tab1:
     st.markdown("<div class='section-header'>🔮 Predict Churn for a New Customer</div>", unsafe_allow_html=True)
     
     if st.button("Predict Churn"):
+        # Store prediction data in session state so it persists across re-runs
+        st.session_state.prediction_made = True
+        
+        # ===== All the prediction logic here =====
         # --- Encode features ---
         gender_encoded = encoders["gender"].transform([gender])[0]
         senior_citizen_encoded = 1 if senior_citizen == "Yes" else 0
@@ -653,52 +657,126 @@ with tab1:
         # --- Predict Churn ---
         proba = rf.predict_proba(sample)[0][1]  # probability of churn
 
-        # --- Risk level & interpretation ---
+        # --- Risk level & detailed interpretation ---
         if proba < 0.3:
             risk = "Low Risk"
-            interpretation = "This customer is unlikely to leave."
+            risk_emoji = "✅"
+            base_interpretation = "This customer is unlikely to leave."
+            reason = "This customer shows strong retention signals with stable tenure, contract commitment, and adequate service satisfaction."
         elif proba < 0.6:
             risk = "Medium Risk"
-            interpretation = "This customer might be considering leaving."
+            risk_emoji = "⚠️"
+            base_interpretation = "This customer might be considering leaving."
+            reason = "This customer shows mixed signals. While some factors suggest stability, others indicate potential vulnerability to churn."
         else:
             risk = "High Risk"
-            interpretation = "This customer is highly likely to churn. Immediate action may be required."
+            risk_emoji = "🚨"
+            base_interpretation = "This customer is highly likely to churn. Immediate action may be required."
+            reason = "This customer demonstrates multiple risk indicators that correlate with churn. Proactive retention strategies are strongly recommended."
 
         prob_percent = proba * 100
+        
+        # Store in session state for persistence
+        st.session_state.sample = sample
+        st.session_state.proba = proba
+        st.session_state.prob_percent = prob_percent
+        st.session_state.risk = risk
+        st.session_state.risk_emoji = risk_emoji
+        st.session_state.base_interpretation = base_interpretation
+        st.session_state.reason = reason
+        st.session_state.clv = clv
+        st.session_state.expected_tenure = expected_tenure
+        st.session_state.tenure = tenure
+        st.session_state.contract = contract
+        st.session_state.internet_service = internet_service
+        st.session_state.tech_support = tech_support
+        st.session_state.monthly_charges = monthly_charges
+        st.session_state.services_count = services_count
 
+    # Display results if prediction has been made (using session state)
+    if st.session_state.get("prediction_made", False):
         # --- Display results (styled) ---
         st.markdown("<div class='section-header'>✨ Churn Prediction Result</div>", unsafe_allow_html=True)
-        _render_result_cards(prob_percent, risk, clv)
+        _render_result_cards(st.session_state.prob_percent, st.session_state.risk, st.session_state.clv)
         
-        # Styled interpretation
+        # Detailed styled interpretation
         st.markdown(
             f"""
             <div style='background: linear-gradient(135deg, #f0f4f8 0%, #e3f2fd 100%);
-                        padding: 16px;
-                        border-radius: 10px;
-                        border-left: 4px solid #6366f1;
-                        margin-top: 16px;'>
-                <strong style='font-size: 16px;'>📋 Interpretation:</strong><br>
-                <span style='font-size: 14px; color: #475569;'>{interpretation}</span>
+                        padding: 20px;
+                        border-radius: 12px;
+                        border-left: 5px solid #6366f1;
+                        margin-top: 20px;'>
+                <strong style='font-size: 16px; color: #0f172a;'>{st.session_state.risk_emoji} Detailed Interpretation</strong><br><br>
+                <span style='font-size: 14px; color: #475569; line-height: 1.6;'>
+                    <strong>Prediction Summary:</strong> {st.session_state.base_interpretation}<br><br>
+                    <strong>Why?</strong> {st.session_state.reason}<br><br>
+                    <strong>Key Factors Affecting This Prediction:</strong><br>
+                    • <strong>Tenure:</strong> {st.session_state.tenure} months - {'Longer tenure typically indicates loyalty' if st.session_state.tenure >= 12 else 'Shorter tenure correlates with higher churn risk'}<br>
+                    • <strong>Contract Type:</strong> {st.session_state.contract} - {'More stable commitment' if st.session_state.contract == 'Two year' else 'More flexible but higher churn risk' if st.session_state.contract == 'Month-to-month' else 'Moderate commitment'}<br>
+                    • <strong>Internet Service:</strong> {st.session_state.internet_service} - {'Requires additional support consideration' if st.session_state.internet_service != 'No' else 'No internet service'}<br>
+                    • <strong>Tech Support:</strong> {st.session_state.tech_support} - {'Indicates engagement with services' if st.session_state.tech_support == 'Yes' else 'May indicate service dissatisfaction or disengagement'}<br>
+                    • <strong>Monthly Charges:</strong> ${st.session_state.monthly_charges:.2f} - {'Higher charges may increase churn sensitivity' if st.session_state.monthly_charges > 70 else 'Moderate pricing'}<br>
+                    • <strong>Services Adopted:</strong> {st.session_state.services_count} service(s) - {'Higher adoption suggests deeper engagement' if st.session_state.services_count >= 3 else 'Lower adoption may indicate limited value realization'}<br>
+                </span>
             </div>
             """,
             unsafe_allow_html=True,
         )
+        
         st.markdown(
-            f"<div style='margin-top:16px;font-size:13px;color:#64748b;background: #f8fafc; padding: 12px; border-radius: 8px;'>💵 Estimated CLV: <strong style='color: #6366f1;'>${clv:,.2f}</strong> (Monthly Charges × {expected_tenure} months)</div>",
+            f"<div style='margin-top:16px;font-size:13px;color:#64748b;background: #f8fafc; padding: 12px; border-radius: 8px;'>💵 Estimated CLV: <strong style='color: #6366f1;'>${st.session_state.clv:,.2f}</strong> (Monthly Charges × {st.session_state.expected_tenure} months)</div>",
             unsafe_allow_html=True,
         )
 
-        # --- Optional SHAP explanation ---
-        # if st.checkbox("Show SHAP Explanation"):
-        #     shap_values = explainer_rf.shap_values(sample) 
-        #     import streamlit.components.v1 as components
-        #     import shap
-
-        #     shap_html = shap.force_plot(
-        #         explainer_rf.expected_value[1], shap_values[1], sample
-        #     )
-        #     components.html(shap_html.data, height=400)
+        # --- SHAP explanation ---
+        st.markdown("<div class='section-header' style='margin-top: 24px;'>Feature Impact Analysis (SHAP)</div>", unsafe_allow_html=True)
+        
+        if st.checkbox("Show detailed SHAP explanation (Feature importance for this prediction)"):
+            try:
+                # Compute SHAP values for this sample
+                shap_values = explainer_rf.shap_values(st.session_state.sample)
+                
+                # Create feature importance visualization for this prediction
+                st.markdown("**How each feature contributed to this prediction:**")
+                
+                # For binary classification, SHAP returns values for both classes
+                # We want class 1 (churn)
+                if isinstance(shap_values, list):
+                    shap_vals_churn = shap_values[1]
+                else:
+                    shap_vals_churn = shap_values[:, :, 1]
+                
+                # Create a summary showing top contributing features
+                feature_impact = pd.DataFrame({
+                    'Feature': X_train.columns,
+                    'Impact': shap_vals_churn[0]
+                }).sort_values('Impact', key=abs, ascending=False).head(10)
+                
+                # Visualize using matplotlib
+                fig, ax = plt.subplots(figsize=(10, 6))
+                colors = ['#ef4444' if x > 0 else '#10b981' for x in feature_impact['Impact']]
+                ax.barh(feature_impact['Feature'], feature_impact['Impact'], color=colors)
+                ax.set_xlabel('SHAP Value (Impact on Churn Prediction)', fontsize=12, fontweight='bold')
+                ax.set_title('Top 10 Features Influencing This Prediction', fontsize=14, fontweight='bold')
+                ax.axvline(x=0, color='black', linestyle='-', linewidth=0.8)
+                plt.tight_layout()
+                st.pyplot(fig)
+                
+                st.markdown("""
+                <div style='background: #f0fdf4; padding: 12px; border-radius: 8px; border-left: 4px solid #10b981; margin-top: 12px; font-size: 12px;'>
+                <strong>📊 How to read this chart:</strong><br>
+                • <strong style='color: #dc2626;'>Red bars</strong> = Features pushing the model toward predicting CHURN<br>
+                • <strong style='color: #16a34a;'>Green bars</strong> = Features pushing the model toward predicting NO CHURN<br>
+                • Longer bars = stronger influence on this prediction
+                </div>
+                """, unsafe_allow_html=True)
+                
+            except Exception as e:
+                st.warning(f"Could not generate SHAP visualization: {str(e)}")
+                st.info("SHAP explanation may require additional dependencies or model compatibility.")
+        else:
+            st.info("Click the checkbox above to see which features had the strongest impact on this churn prediction.")
 
 # ===================== TAB 2: Model Performance =====================
 
