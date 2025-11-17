@@ -67,7 +67,16 @@ st.markdown(
     /* Sidebar styling */
     .stSidebar {
         background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-        border-right: 2px solid var(--border-light);
+        border-right: 3px solid var(--border-light);
+        padding: 0 !important;
+    }
+    
+    .stSidebar [data-testid="stSidebarContent"] {
+        padding: 20px !important;
+    }
+    
+    .stSidebar > div:first-child {
+        padding: 0 !important;
     }
     
     /* Header section */
@@ -300,6 +309,183 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+# ---- Professional Sidebar Styling (Enhanced) ----
+st.markdown(
+    """
+    <style>
+    /* Sidebar Container */
+    div[data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
+        border-right: 3px solid #e2e8f0 !important;
+    }
+    
+    div[data-testid="stSidebarContent"] {
+        padding: 24px 20px !important;
+    }
+    
+    /* Sidebar Header */
+    .stSidebar .stSubheader {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        color: white !important;
+        padding: 16px !important;
+        border-radius: 12px !important;
+        font-weight: 700 !important;
+        font-size: 18px !important;
+        margin-bottom: 20px !important;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        text-align: center;
+    }
+    
+    /* Sidebar Labels */
+    .stSidebar .stSelectbox label,
+    .stSidebar .stNumberInput label,
+    .stSidebar .stSlider label {
+        color: #6366f1 !important;
+        font-weight: 600 !important;
+        font-size: 14px !important;
+        margin-bottom: 8px !important;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    /* Selectbox Styling */
+    .stSidebar .stSelectbox > div > div:first-child {
+        background: white !important;
+        border: 2px solid #e2e8f0 !important;
+        border-radius: 10px !important;
+        padding: 10px 12px !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04) !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .stSidebar .stSelectbox > div > div:first-child:hover {
+        border-color: #6366f1 !important;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1) !important;
+    }
+    
+    /* Number Input Styling */
+    .stSidebar .stNumberInput > div > input {
+        background: white !important;
+        border: 2px solid #e2e8f0 !important;
+        border-radius: 10px !important;
+        padding: 12px !important;
+        font-size: 14px !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .stSidebar .stNumberInput > div > input:focus {
+        border-color: #6366f1 !important;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
+    }
+    
+    /* Slider Styling */
+    .stSidebar .stSlider > div > div:first-child {
+        padding: 12px 0 !important;
+    }
+    
+    .stSidebar .stSlider > div > div > div {
+        background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%) !important;
+        border-radius: 10px !important;
+    }
+    
+    /* Input field containers */
+    .stSidebar .stSelectbox,
+    .stSidebar .stNumberInput,
+    .stSidebar .stSlider {
+        background: transparent !important;
+        margin-bottom: 16px !important;
+        padding: 12px !important;
+        border-radius: 10px !important;
+        border: 1px solid #f1f5f9 !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .stSidebar .stSelectbox:hover,
+    .stSidebar .stNumberInput:hover,
+    .stSidebar .stSlider:hover {
+        background: linear-gradient(135deg, #f0f4f8 0%, #e3f2fd 100%) !important;
+        border-color: #e2e8f0 !important;
+    }
+    
+    /* Sidebar text and paragraphs */
+    .stSidebar .stMarkdown {
+        color: #475569 !important;
+        font-size: 13px !important;
+        line-height: 1.6 !important;
+    }
+    
+    /* Sidebar dividers */
+    .stSidebar hr {
+        border-color: #e2e8f0 !important;
+        margin: 20px 0 !important;
+    }
+    
+    /* Focus state for better UX */
+    .stSidebar input:focus,
+    .stSidebar select:focus {
+        outline: none !important;
+        border-color: #6366f1 !important;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
+    }
+    
+    /* Sidebar button (if any) */
+    .stSidebar .stButton > button {
+        width: 100% !important;
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%) !important;
+        color: white !important;
+        border: none !important;
+        padding: 12px 20px !important;
+        border-radius: 10px !important;
+        font-weight: 600 !important;
+        font-size: 14px !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25) !important;
+        margin-top: 8px !important;
+    }
+    
+    .stSidebar .stButton > button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 18px rgba(99, 102, 241, 0.35) !important;
+    }
+    
+    /* Sidebar expander */
+    .stSidebar .streamlit-expanderHeader {
+        background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%) !important;
+        border: 2px solid #e2e8f0 !important;
+        border-radius: 10px !important;
+        padding: 12px 16px !important;
+        color: #6366f1 !important;
+        font-weight: 600 !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .stSidebar .streamlit-expanderHeader:hover {
+        background: linear-gradient(135deg, #f3f4f6 0%, #ecf0f1 100%) !important;
+        border-color: #6366f1 !important;
+    }
+    
+    /* Sidebar scrollbar styling */
+    .stSidebar::-webkit-scrollbar {
+        width: 8px !important;
+    }
+    
+    .stSidebar::-webkit-scrollbar-track {
+        background: #f8fafc !important;
+    }
+    
+    .stSidebar::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, #6366f1 0%, #8b5cf6 100%) !important;
+        border-radius: 4px !important;
+    }
+    
+    .stSidebar::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(180deg, #4f46e5 0%, #7c3aed 100%) !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 # App header
 st.markdown(
     """
@@ -343,12 +529,21 @@ def _render_result_cards(prob_percent: float, risk: str, clv: float):
 
 
 # ===== Sidebar Inputs =====
-st.sidebar.header("New Customer Information")
+st.sidebar.markdown("<div class='stSubheader'>📋 Customer Information</div>", unsafe_allow_html=True)
+st.sidebar.markdown("<div style='font-size: 12px; color: #64748b; margin-bottom: 16px;'>Fill in the details below to predict churn and estimate CLV</div>", unsafe_allow_html=True)
+st.sidebar.markdown("<div style='margin-top: 12px; padding-top: 12px; border-top: 2px solid #e2e8f0;'></div>", unsafe_allow_html=True)
+st.sidebar.markdown("<span style='font-size: 11px; color: #8b5cf6; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;'>👤 Personal Details</span>", unsafe_allow_html=True)
+
 gender = st.sidebar.selectbox("Gender", ["Male", "Female"])
 senior_citizen = st.sidebar.selectbox("Senior Citizen", ["No", "Yes"])
 partner = st.sidebar.selectbox("Partner", ["No", "Yes"])
 dependents = st.sidebar.selectbox("Dependents", ["No", "Yes"])
 tenure = st.sidebar.number_input("Tenure (months)", min_value=0, max_value=72, value=12)
+
+# Services section
+st.sidebar.markdown("<div style='margin-top: 16px; padding-top: 16px; border-top: 2px solid #e2e8f0;'></div>", unsafe_allow_html=True)
+st.sidebar.markdown("<span style='font-size: 11px; color: #8b5cf6; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;'>📞 Services</span>", unsafe_allow_html=True)
+
 phone_service = st.sidebar.selectbox("Phone Service", ["Yes", "No"])
 multiple_lines = st.sidebar.selectbox("Multiple Lines", ["Yes", "No", "No phone service"])
 internet_service = st.sidebar.selectbox("Internet Service", ["DSL", "Fiber optic", "No"])
@@ -359,6 +554,11 @@ tech_support = st.sidebar.selectbox("Tech Support", ["Yes", "No", "No internet s
 streaming_tv = st.sidebar.selectbox("Streaming TV", ["Yes", "No", "No internet service"])
 streaming_movies = st.sidebar.selectbox("Streaming Movies", ["Yes", "No", "No internet service"])
 contract = st.sidebar.selectbox("Contract", ["Month-to-month", "One year", "Two year"])
+
+# Billing section
+st.sidebar.markdown("<div style='margin-top: 16px; padding-top: 16px; border-top: 2px solid #e2e8f0;'></div>", unsafe_allow_html=True)
+st.sidebar.markdown("<span style='font-size: 11px; color: #8b5cf6; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;'>💳 Billing</span>", unsafe_allow_html=True)
+
 paperless_billing = st.sidebar.selectbox("Paperless Billing", ["Yes", "No"])
 payment_method = st.sidebar.selectbox(
     "Payment Method",
